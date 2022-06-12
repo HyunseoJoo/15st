@@ -1,12 +1,16 @@
 package com.example.a11st;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -26,13 +30,15 @@ public class MainActivity extends AppCompatActivity {
 
     static RequestQueue requestQueue;
 
+    RecyclerView recyclerView;
+    MovieAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         editText = findViewById(R.id.edit_Text);
-        textView = findViewById(R.id.Text_View);
 
         Button button = findViewById(R.id.But_ton);
         button.setOnClickListener(new View.OnClickListener() {
@@ -44,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
+        recyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager
+                (this,LinearLayoutManager.VERTICAL,false);
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new MovieAdapter();
+        recyclerView.setAdapter(adapter);
     }
 
     public void makeRequest(){
@@ -86,9 +99,14 @@ public class MainActivity extends AppCompatActivity {
         MovieList movieList = gson.fromJson(response,MovieList.class);
         println("영화 정보의 수 : "+ movieList.boxOfficeResult.dailyBoxOfficeList.size());
 
+        for(int i=0; i< movieList.boxOfficeResult.dailyBoxOfficeList.size();i++){
+            Movie movie = movieList.boxOfficeResult.dailyBoxOfficeList.get(i);
+            adapter.addItem(movie);
+        }
+        adapter.notifyDataSetChanged();
     }
 
     public void println(String data){
-        textView.append(data + "\n");
+        Log.d("MainActivity",data);
     }
 }
